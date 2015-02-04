@@ -21,11 +21,11 @@ var ParsePushPlugin = {
 		 }
 	 },
 	 
-    register: function(regParams, successCb, errorCb) {
+    registerDevice: function(regParams, successCb, errorCb) {
    	 if(regParams.eventKey) this._eventKey = regParams.eventKey;
    	 
    	 var params = _.extend(regParams, {ecb: serviceName + '._onReceive'});
-       cordova.exec(successCb, errorCb, serviceName, 'register', [params]);
+       cordova.exec(successCb, errorCb, serviceName, 'registerDevice', [params]);
     },
 
     getInstallationId: function(successCb, errorCb) {
