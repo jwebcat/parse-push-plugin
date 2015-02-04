@@ -6,7 +6,7 @@
 
 @implementation CDVParsePlugin
 
-- (void)initialize: (CDVInvokedUrlCommand*)command
+- (void)registerDevice: (CDVInvokedUrlCommand*)command
 {
     CDVPluginResult* pluginResult = nil;
     NSString *appId = [command.arguments objectAtIndex:0];
