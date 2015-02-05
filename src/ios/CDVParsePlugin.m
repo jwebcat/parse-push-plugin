@@ -137,44 +137,23 @@ void MethodSwizzle(Class c, SEL originalSelector) {
 {
     // Call existing method
     [self swizzled_application:application didReceiveRemoteNotification:userInfo];
-    [PFPush handlePush:userInfo];
+    
+    NSString *json = @"";
+    json = [self convertObjectToJson:userInfo];
 
-    NSMutableString *jsonStr = [NSMutableString stringWithString:@"{"];
-
-    [self parseDictionary:userInfo intoJSON:jsonStr];
-
-
-    [jsonStr appendFormat:@"foreground:\"%d\"", 1];
-
-    [jsonStr appendString:@"}"];
-
-    NSString* jsString = [NSString stringWithFormat:@"ParsePushPlugin.receiveNotification(%@);", jsonStr];
+    NSString* jsString = [NSString stringWithFormat:@"ParsePushPlugin.receiveNotification(%@);", json];
     [self.viewController.webView stringByEvaluatingJavaScriptFromString:jsString];
 }
 
-// reentrant method to drill down and surface all sub-dictionaries' key/value pairs into the top level json
--(void)parseDictionary:(NSDictionary *)inDictionary intoJSON:(NSMutableString *)jsonString
+
+- (NSString*) convertObjectToJson:(NSObject*) object
 {
-    NSArray         *keys = [inDictionary allKeys];
-    NSString        *key;
+    NSError *writeError = nil;
 
-    for (key in keys)
-    {
-        id thisObject = [inDictionary objectForKey:key];
+    NSData *jsonData = [NSJSONSerialization dataWithJSONObject:object options:NSJSONWritingPrettyPrinted error:&writeError];
+    NSString *result = [[NSString alloc] initWithData:jsonData encoding:NSUTF8StringEncoding];
 
-        if ([thisObject isKindOfClass:[NSDictionary class]])
-            [self parseDictionary:thisObject intoJSON:jsonString];
-        else if ([thisObject isKindOfClass:[NSString class]])
-             [jsonString appendFormat:@"\"%@\":\"%@\",",
-              key,
-              [[[[inDictionary objectForKey:key]
-                stringByReplacingOccurrencesOfString:@"\\" withString:@"\\\\"]
-                 stringByReplacingOccurrencesOfString:@"\"" withString:@"\\\""]
-                 stringByReplacingOccurrencesOfString:@"\n" withString:@"\\n"]];
-        else {
-            [jsonString appendFormat:@"\"%@\":\"%@\",", key, [inDictionary objectForKey:key]];
-        }
-    }
+    return result;
 }
 
 @end
