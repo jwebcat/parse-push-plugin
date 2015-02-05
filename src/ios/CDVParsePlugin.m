@@ -13,6 +13,8 @@
     NSDictionary* dictionary = [arguments objectAtIndex:0];
     NSString *appId = dictionary[@"appId"];
     NSString *clientKey = dictionary[@"clientKey"];
+    //NSString *appId = [arguments objectAtIndex:0];
+    //NSString *clientKey = [arguments objectAtIndex:1];
     [Parse setApplicationId:appId clientKey:clientKey];
     pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
     [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
@@ -113,6 +115,7 @@ void MethodSwizzle(Class c, SEL originalSelector) {
 
 - (void)noop_application:(UIApplication *)application didRegisterForRemoteNotificationsWithDeviceToken:(NSData *)newDeviceToken
 {
+    
 }
 
 - (void)swizzled_application:(UIApplication *)application didRegisterForRemoteNotificationsWithDeviceToken:(NSData *)newDeviceToken
@@ -127,6 +130,7 @@ void MethodSwizzle(Class c, SEL originalSelector) {
 
 - (void)noop_application:(UIApplication *)application didReceiveRemoteNotification:(NSDictionary *)userInfo
 {
+    
 }
 
 - (void)swizzled_application:(UIApplication *)application didReceiveRemoteNotification:(NSDictionary *)userInfo
@@ -134,6 +138,43 @@ void MethodSwizzle(Class c, SEL originalSelector) {
     // Call existing method
     [self swizzled_application:application didReceiveRemoteNotification:userInfo];
     [PFPush handlePush:userInfo];
+
+    NSMutableString *jsonStr = [NSMutableString stringWithString:@"{"];
+
+    [self parseDictionary:userInfo intoJSON:jsonStr];
+
+
+    [jsonStr appendFormat:@"foreground:\"%d\"", 1];
+
+    [jsonStr appendString:@"}"];
+
+    NSString* jsString = [NSString stringWithFormat:@"ParsePushPlugin.receiveNotification(%@);", jsonStr];
+    [self.viewController.webView stringByEvaluatingJavaScriptFromString:jsString];
+}
+
+// reentrant method to drill down and surface all sub-dictionaries' key/value pairs into the top level json
+-(void)parseDictionary:(NSDictionary *)inDictionary intoJSON:(NSMutableString *)jsonString
+{
+    NSArray         *keys = [inDictionary allKeys];
+    NSString        *key;
+
+    for (key in keys)
+    {
+        id thisObject = [inDictionary objectForKey:key];
+
+        if ([thisObject isKindOfClass:[NSDictionary class]])
+            [self parseDictionary:thisObject intoJSON:jsonString];
+        else if ([thisObject isKindOfClass:[NSString class]])
+             [jsonString appendFormat:@"\"%@\":\"%@\",",
+              key,
+              [[[[inDictionary objectForKey:key]
+                stringByReplacingOccurrencesOfString:@"\\" withString:@"\\\\"]
+                 stringByReplacingOccurrencesOfString:@"\"" withString:@"\\\""]
+                 stringByReplacingOccurrencesOfString:@"\n" withString:@"\\n"]];
+        else {
+            [jsonString appendFormat:@"\"%@\":\"%@\",", key, [inDictionary objectForKey:key]];
+        }
+    }
 }
 
 @end

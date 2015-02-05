@@ -24,7 +24,7 @@ var ParsePushPlugin = {
     registerDevice: function(regParams, successCb, errorCb) {
    	 if(regParams.eventKey) this._eventKey = regParams.eventKey;
    	 
-   	 var params = _.extend(regParams, {ecb: serviceName + '._onReceive'});
+   	 var params = _.extend(regParams, {ecb: serviceName + '.receiveNotification'});
        cordova.exec(successCb, errorCb, serviceName, 'registerDevice', [params]);
     },
 
@@ -46,7 +46,11 @@ var ParsePushPlugin = {
 
     unsubscribe: function(channel, successCb, errorCb) {
        cordova.exec(successCb, errorCb, serviceName, 'unsubscribe', [ channel ]);
-    }
+    },
+	
+	receiveNotification: function(message){
+		alert('inside default function for receive notification');
+	}
 };
 
 //
