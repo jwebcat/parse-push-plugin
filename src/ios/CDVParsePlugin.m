@@ -88,6 +88,14 @@
     [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
 }
 
+- (void)resetBadge: (CDVInvokedUrlCommand *)command
+  PFInstallation *currentInstallation = [PFInstallation currentInstallation];
+  if (currentInstallation.badge != 0) {
+    currentInstallation.badge = 0;
+    [currentInstallation saveEventually];
+  }
+}
+
 @end
 
 @implementation AppDelegate (CDVParsePlugin)

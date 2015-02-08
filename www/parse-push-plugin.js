@@ -49,7 +49,12 @@ var ParsePushPlugin = {
     },
 	
 	receiveNotification: function(message){
-		alert('inside default function for receive notification');
+	},
+	
+	resetBadge: function(message){
+		if(/iphone|ipod|ipad/i.test(navigator.userAgent)){
+			cordova.exec(successCb, errorCb, serviceName, 'resetBadge', []);
+		}
 	}
 };
 
