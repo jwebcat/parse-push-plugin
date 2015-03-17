@@ -26,6 +26,7 @@ public class ParsePushPlugin extends CordovaPlugin {
     
     private static CordovaWebView gWebView;
     private static String gECB;
+    private static String gOnOpen;
     
     public static final String LOGTAG = "ParsePushPlugin";
 
@@ -132,10 +133,19 @@ public class ParsePushPlugin extends CordovaPlugin {
     	
     	if (gECB != null && !gECB.isEmpty() && gWebView != null) gWebView.sendJavascript(snippet);
     }
+
+
+    public static void javascriptOnOpen(JSONObject _json){
+    	String snippet = "javascript:" + gOnOpen + "(" + _json.toString() + ")";
+    	Log.v(LOGTAG, "javascriptOnOpen: " + snippet);
+    	if (gOnOpen != null && !gOnOpen.isEmpty() && gWebView != null) gWebView.sendJavascript(snippet);
+    }
+
     
     @Override
     protected void pluginInitialize() {
     	gECB = null;
+    	gOnOpen = null;
     	gWebView = this.webView;
     }
     
@@ -143,6 +153,7 @@ public class ParsePushPlugin extends CordovaPlugin {
     public void onDestroy() {
     	super.onDestroy();
     	gECB = null;
+    	gOnOpen = null;
     	gWebView = null;
     }
 }

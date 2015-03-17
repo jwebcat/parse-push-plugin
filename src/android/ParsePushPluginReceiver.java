@@ -37,23 +37,12 @@ public class ParsePushPluginReceiver extends ParsePushBroadcastReceiver
         String uriString = pushData.optString("uri");
         Class<? extends Activity> cls = getActivity(context, intent);
         
-        Intent activityIntent;
-        if (!uriString.isEmpty()) {
-            activityIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(uriString));
-        } else {
-            activityIntent = new Intent(context, cls);
-        }
-        activityIntent.putExtras(intent.getExtras());
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
-            TaskStackBuilder stackBuilder = TaskStackBuilder.create(context);
-            stackBuilder.addParentStack(cls);
-            stackBuilder.addNextIntent(activityIntent);
-            stackBuilder.startActivities();
-        } else {
-            activityIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-            activityIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-            context.startActivity(activityIntent);
-        }
+        // We only have the one activity, so open it instead of starting a new one
+        // Then we don't get kicked back to the home page
+        activityIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+        context.startActivity(activityIntent);
+
+        if(pushData != null) ParsePushPlugin.javascriptOnOpen( pushData );
     }
 	
 	private static JSONObject getPushData(Intent intent){
