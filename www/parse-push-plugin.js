@@ -5,6 +5,7 @@ var _ = window._ ? window._ : Parse._;
 var ParsePushPlugin = {
 	 _eventKey: null,
 	 _onReceive: function(pn){
+         console.log('_onReceive ' + JSON.stringify(pn))
 		 //
 		 // an eventKey can be registered with the register() function. The eventKey 
 		 // will be used to trigger additional callbacks for this app. Let's 
@@ -49,6 +50,7 @@ var ParsePushPlugin = {
     },
 	
 	receiveNotification: function(message){
+        this._onReceive(message)
 	},
 	
 	resetBadge: function(successCb, errorCb){
