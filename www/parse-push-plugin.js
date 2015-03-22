@@ -25,7 +25,7 @@ var ParsePushPlugin = {
     registerDevice: function(regParams, successCb, errorCb) {
    	 if(regParams.eventKey) this._eventKey = regParams.eventKey;
    	 
-   	 var params = _.extend(regParams, {ecb: serviceName + '.receiveNotification'});
+   	 var params = _.extend(regParams, {ecb: serviceName + '.receiveNotification', onOpen: serviceName + '.openNotification'});
        cordova.exec(successCb, errorCb, serviceName, 'registerDevice', [params]);
     },
 
@@ -52,6 +52,10 @@ var ParsePushPlugin = {
 	receiveNotification: function(message){
         this._onReceive(message)
 	},
+
+    openNotification: function(message){
+        this.trigger('openPN', message);
+    },
 	
 	resetBadge: function(successCb, errorCb){
         cordova.exec(successCb, errorCb, serviceName, 'resetBadge', []);

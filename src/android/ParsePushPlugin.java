@@ -74,6 +74,7 @@ public class ParsePushPlugin extends CordovaPlugin {
             //
             // register callbacks for notification events
             gECB = jo.optString("ecb");
+            gOnOpen = jo.optString("onOpen");
             
             callbackContext.success();
         } catch (JSONException e) {
