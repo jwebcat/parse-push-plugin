@@ -36,7 +36,16 @@ public class ParsePushPluginReceiver extends ParsePushBroadcastReceiver
         JSONObject pushData = getPushData(intent);
         String uriString = pushData.optString("uri");
         Class<? extends Activity> cls = getActivity(context, intent);
-        
+
+        Intent activityIntent;
+        if (!uriString.isEmpty()) {
+            activityIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(uriString));
+        } else {
+            activityIntent = new Intent(context, cls);
+        }
+
+        activityIntent.putExtras(intent.getExtras());
+
         // We only have the one activity, so open it instead of starting a new one
         // Then we don't get kicked back to the home page
         activityIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
