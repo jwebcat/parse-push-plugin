@@ -20,7 +20,23 @@ public class ParsePushPluginReceiver extends ParsePushBroadcastReceiver
 	
 	@Override
 	protected void onPushReceive(Context context, Intent intent) {
-		super.onPushReceive(context, intent);
+
+        // Clear any previous notification so we don't flood the user with notifications
+        // TODO should check for a flag or an id to pass to notificationManager.cancel()
+        NotificationManager notificationManager = (NotificationManager)context.getSystemService(Context.NOTIFICATION_SERVICE);
+        notificationManager.cancelAll();
+
+        // By default (super call), a broadcast intent will be sent if an "action" is present in the data and
+        // a notification will be show if "alert" and "title" are present in the data.
+        // See https://parse.com/docs/android/api/com/parse/ParsePushBroadcastReceiver.html#onPushReceive(android.content.Context,%20android.content.Intent)
+        // Only create a notification if the app is in the background
+        if(org.apache.cordova.CustomApplication.isBackground()) {
+            Log.d(LOGTAG, "App is in background, creating push notification");
+            super.onPushReceive(context, intent);
+        } else {
+            Log.d(LOGTAG, "App is in foreground, skipping push notification");
+        }
+
 		JSONObject pushData = getPushData(intent);
 		if(pushData != null) ParsePushPlugin.javascriptECB( pushData );
 	}
